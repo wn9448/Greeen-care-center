@@ -2186,13 +2186,13 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
       { cx: 35.5, cy: 118.5, r: 15 },
       { cx: 15, cy: 100.5, r: 11 }
     ];
-    // 그라디언트 없이 원마다 다른 초록 톤의 단색으로만 구분. 글씨는 항상 검정.
+    // 그라디언트 없이 원마다 다른 초록 톤의 단색으로만 구분. 글씨는 흰색.
     var bubbleColors = ['#2f9e63', '#3fae74', '#5abf88', '#7bcf9e', '#a3ddb8', '#c8ecd3'];
     var bubbles = sorted.map(function(b, i) {
       var s = slots[i];
       var fontSize = Math.max(6, Math.round(s.r * 0.27));
       return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" fill="' + bubbleColors[i] + '"/>' +
-        '<text x="' + s.cx + '" y="' + (s.cy + fontSize * 0.35) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="' + fontSize + '" font-weight="600" fill="#1c221e">' + b.name + '</text>';
+        '<text x="' + s.cx + '" y="' + (s.cy + fontSize * 0.35) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="' + fontSize + '" font-weight="600" fill="#fff">' + b.name + '</text>';
     }).join('');
     var svg = '<svg width="100%" viewBox="0 0 188 151" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + bubbles + '</svg>';
     var i1 = data.deficiencies[0], i2 = top3rec[0];
