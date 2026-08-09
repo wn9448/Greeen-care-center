@@ -2527,40 +2527,45 @@ window.addEventListener('scroll', () => {
 .prescription-overlay .pr-btn{background:var(--gm);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .prescription-overlay .pr-btn-ghost{background:#fff;color:var(--ch);border:1px solid var(--bd)}
 
-/* ── 처방전 용지: 대시보드 리포트 스타일 ── */
-/* 참고한 시장 트렌드 인포그래픽처럼 옅은 회색 배경 위에 둥근 카드가 떠 있는
-   구조로 바꿨다. 페이지마다 독립된 .pr-page 박스를 두는 이유는 그대로(하나의 긴
-   박스가 인쇄 중 알아서 여러 장으로 쪼개지게 두지 않아야 항상 같은 크기·여백을
-   보장한다). --gm/--gd는 기존 루트/인쇄 오버라이드를 그대로 재사용해서 톤은
-   CMYK 인쇄에서도 안전하게 유지된다. */
-.pr-page{position:relative;box-sizing:border-box;width:210mm;max-width:calc(100% - 32px);min-height:297mm;margin:28px auto 48px;background:#f1f1ee;padding:13mm 12mm;box-shadow:0 6px 28px rgba(0,0,0,.28);font-size:11px;line-height:1.5;color:#1c221e;--gm-tint:#eafaf1;--gm-tint2:#bdeed2}
+/* ── 처방전 용지: 모던 헬스케어 대시보드 스타일 ── */
+/* Dribbble의 최신 헬스케어 UI(Vektora, RonDesignLab, MediSphere 등) 레퍼런스를
+   참고해 두꺼운 테두리·이중선 레터헤드 같은 격식체 문서 톤을 걷어내고, 큰
+   radius + 은은한 그림자(테두리 대신 elevation으로 구분) + 넉넉한 여백의
+   카드형 대시보드로 다시 짰다. 페이지마다 독립된 .pr-page 박스를 두는 이유는
+   그대로(하나의 긴 박스가 인쇄 중 알아서 여러 장으로 쪼개지지 않게). --gm/--gd는
+   기존 루트/인쇄 오버라이드를 그대로 재사용해서 톤은 CMYK 인쇄에서도 안전하다. */
+.pr-page{--rx-r-lg:22px;--rx-r-md:16px;--rx-shadow:0 1px 2px rgba(20,25,20,.05),0 14px 32px -16px rgba(20,25,20,.16);
+  position:relative;box-sizing:border-box;width:210mm;max-width:calc(100% - 32px);min-height:297mm;margin:28px auto 48px;background:#f4f5f1;padding:13mm 12mm;box-shadow:0 6px 28px rgba(0,0,0,.24);font-size:11px;line-height:1.5;color:#1c221e;--gm-tint:#eafaf1;--gm-tint2:#bdeed2}
 .pr-page-fit{transform-origin:top center}
-.pr-page-2-head{position:relative;z-index:1;display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:.5px;color:#9a9d98;margin-bottom:10px}
+.pr-page-2-head{position:relative;z-index:1;display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:.5px;color:#9a9d98;margin-bottom:12px}
 .rx-watermark{position:absolute;top:250mm;left:50%;transform:translate(-50%,-50%) rotate(-24deg);font-size:60px;font-weight:800;color:#1c221e;opacity:.02;white-space:nowrap;letter-spacing:5px;pointer-events:none;z-index:0}
 
-/* ── 대시보드 헤더 ── */
-.pr-dash-head{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:3px double #1c221e}
-.pr-head-brand{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.pr-brand-logo{height:64px;width:auto;display:block}
+/* ── 대시보드 헤더: 이중선 레터헤드 대신 둥근 헤더 카드 + 원형 로고 배지 ── */
+.pr-dash-head{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px;padding:16px 22px;background:#fff;border-radius:var(--rx-r-lg);box-shadow:var(--rx-shadow)}
+.pr-head-brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.pr-brand-logo{height:56px;width:auto;display:block}
 .pr-dash-head-right{text-align:right}
 .pr-dash-title{font-size:19px;font-weight:700;color:var(--gm)}
 .pr-dash-sub{font-size:10.5px;font-weight:600;color:#9a9d98;margin-top:2px}
 .pr-dash-meta{font-size:8.5px;color:#9a9d98;margin-top:5px;line-height:1.6}
 .pr-dash-meta b{color:#1c221e;font-weight:700;font-variant-numeric:tabular-nums}
 
-/* ── 환자 정보: 실제 처방전다운 구조화된 표 형태로 ── */
-.rx-info-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;border:1px solid #1c221e;margin:12px 0 14px;background:#fff;border-radius:8px;overflow:hidden}
-.rx-info-cell{padding:7px 14px;border-left:1px solid #dfe1dc}
-.rx-info-cell:nth-child(odd){border-left:none}
-.rx-info-cell:nth-child(n+3){border-top:1px solid #dfe1dc}
-.rx-info-label{display:block;font-size:8px;font-weight:700;color:#9a9d98;letter-spacing:1px}
-.rx-info-value{display:block;font-size:11.5px;font-weight:700;margin-top:2px;color:#1c221e;font-variant-numeric:tabular-nums}
+/* ── 환자 정보: 테두리 표 대신 색상 점으로 구분한 소프트 칩 카드 4개 ── */
+.rx-info-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 14px}
+.rx-info-cell{position:relative;padding:12px 14px 12px 18px;background:#fff;border-radius:var(--rx-r-md);box-shadow:var(--rx-shadow)}
+.rx-info-cell::before{content:'';position:absolute;left:0;top:14px;bottom:14px;width:4px;border-radius:4px;background:var(--rx-dot,var(--gm))}
+.rx-info-cell:nth-child(1){--rx-dot:#2f9e63}
+.rx-info-cell:nth-child(2){--rx-dot:#3fb0a8}
+.rx-info-cell:nth-child(3){--rx-dot:#9b8de0}
+.rx-info-cell:nth-child(4){--rx-dot:#e0a83f}
+.rx-info-label{display:block;font-size:8px;font-weight:700;color:#9a9d98;letter-spacing:.5px}
+.rx-info-value{display:block;font-size:11.5px;font-weight:700;margin-top:3px;color:#1c221e;font-variant-numeric:tabular-nums}
 
 /* ── 대시보드 카드 + 쿼드런트 2열 ── */
-.rx-dash-card{position:relative;z-index:1;background:#fbfbf9;border:1px solid #dfe1dc;border-radius:10px;box-shadow:0 8px 24px -14px rgba(20,25,20,.16);padding:18px 0;margin-bottom:14px}
+.rx-dash-card{position:relative;z-index:1;background:#fff;border-radius:var(--rx-r-lg);box-shadow:var(--rx-shadow);padding:20px 0;margin-bottom:14px}
 .rx-quad-grid{display:grid;grid-template-columns:1fr 1fr;position:relative}
-.rx-quad-grid::before{content:'';position:absolute;left:50%;top:4px;bottom:4px;width:1px;background:#e6e7e2}
-.rx-quad{padding:0 18px}
+.rx-quad-grid::before{content:'';position:absolute;left:50%;top:6px;bottom:6px;width:1px;background:#eef0ea}
+.rx-quad{padding:0 20px}
 .rx-quad-title{font-size:10.5px;font-weight:700;color:#1c221e;margin-bottom:8px}
 .rx-quad-title small{font-size:7.5px;font-weight:600;color:#9a9d98;margin-left:3px}
 
@@ -2601,7 +2606,7 @@ window.addEventListener('scroll', () => {
 /* 쿼드런트4: 버블 차트 + 스피치 카드 인사이트 */
 .rx-quad-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center}
 .rx-speech-label{font-size:7.5px;font-weight:700;color:var(--gm);margin-bottom:5px}
-.rx-speech{position:relative;background:#fff;border:1px solid #e6e7e2;border-radius:8px;padding:7px 9px;font-size:7.8px;line-height:1.55;color:#3d453f;margin-bottom:6px}
+.rx-speech{position:relative;background:#f6f7f2;border-radius:var(--rx-r-md);padding:9px 12px;font-size:7.8px;line-height:1.55;color:#3d453f;margin-bottom:6px}
 .rx-speech:last-child{margin-bottom:0}
 
 /* ── 2페이지 대시보드 카드는 더 크게: 채소 순위·버블 차트가 페이지를 넉넉히
@@ -2617,19 +2622,19 @@ window.addEventListener('scroll', () => {
 .rx-dash-card-lg .rx-speech-label{font-size:9.5px;margin-bottom:8px}
 .rx-dash-card-lg .rx-speech{font-size:10px;line-height:1.65;padding:10px 12px;margin-bottom:9px}
 
-/* ── 안내문 & 섹션 제목 ── */
-.rx-note{position:relative;z-index:1;background:#fff;border:1px solid #e6e7e2;border-left:4px solid var(--gm);border-radius:0 8px 8px 0;padding:8px 12px;margin-bottom:10px;font-weight:600;font-size:10.5px}
-.rx-section{position:relative;z-index:1;font-size:12px;font-weight:700;letter-spacing:.3px;color:#1c221e;margin:14px 0 8px}
+/* ── 안내문 & 섹션 제목: 배너 대신 둥근 필 형태 배지 ── */
+.rx-note{position:relative;z-index:1;background:var(--gm-tint);border-radius:999px;padding:10px 20px;margin-bottom:12px;font-weight:600;font-size:10.5px;color:var(--gd)}
+.rx-section{position:relative;z-index:1;font-size:12px;font-weight:700;letter-spacing:.3px;color:#1c221e;margin:18px 0 10px}
 .rx-section:first-of-type{margin-top:0}
 
 /* 진단 소견 상세 목록 (대시보드 카드 아래 근거 자료) */
-.rx-detail-list{position:relative;z-index:1;display:flex;flex-direction:column;gap:6px}
-.rx-detail-row{display:flex;gap:9px;background:#fbfbf9;border:1px solid #e6e7e2;border-radius:8px;padding:8px 10px;break-inside:avoid;page-break-inside:avoid}
+.rx-detail-list{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px}
+.rx-detail-row{display:flex;gap:10px;background:#fff;border-radius:var(--rx-r-md);box-shadow:var(--rx-shadow);padding:10px 12px;break-inside:avoid;page-break-inside:avoid}
 .rx-detail-body{flex:1;min-width:0}
 .rx-detail-head{display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;margin-bottom:3px}
 .rx-detail-head b{color:#1c221e}
 .rx-prob-value{color:var(--gm);font-weight:800;font-variant-numeric:tabular-nums}
-.rx-prob-track{width:100%;height:5px;background:#e6e7e2;border-radius:3px;overflow:hidden;margin-bottom:4px}
+.rx-prob-track{width:100%;height:5px;background:#eef0ea;border-radius:3px;overflow:hidden;margin-bottom:4px}
 .rx-prob-fill{height:100%;background:var(--gm);border-radius:3px}
 .rx-detail-reason{font-size:8.5px;line-height:1.5;color:#5b655f}
 
@@ -2638,39 +2643,39 @@ window.addEventListener('scroll', () => {
 .rx-veg-chars .veg-char{height:26px;width:auto}
 
 /* 처방 채소 — 3개씩 3줄 카드 그리드 */
-.rx-veg-grid{position:relative;z-index:1;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px 10px;font-size:10px}
-.rx-veg-card{background:#fbfbf9;border:1px solid #e6e7e2;border-radius:8px;padding:9px 10px;break-inside:avoid;page-break-inside:avoid}
+.rx-veg-grid{position:relative;z-index:1;width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:10px 12px;font-size:10px}
+.rx-veg-card{background:#fff;border-radius:var(--rx-r-md);box-shadow:var(--rx-shadow);padding:12px 13px;break-inside:avoid;page-break-inside:avoid}
 .rx-veg-name{font-weight:700}
 .rx-veg-name b{color:var(--gm);font-weight:700;margin-right:1px}
 .rx-veg-benefits{font-size:8.5px;line-height:1.4;margin-top:4px;color:#3d453f}
 .rx-td-sub{display:block;font-size:8px;color:#9a9d98;margin-top:2px}
 
 /* ── 낱개 태그 배지 (영양소 / 레시피 특징) ── */
-.rx-tag-row{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
-.rx-tag{display:inline-block;background:var(--gm-tint);color:var(--gd);border-radius:999px;padding:2px 7px;font-size:7.5px;font-weight:700;line-height:1.5;white-space:nowrap}
+.rx-tag-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.rx-tag{display:inline-block;background:var(--gm-tint);color:var(--gd);border-radius:999px;padding:3px 9px;font-size:7.5px;font-weight:700;line-height:1.5;white-space:nowrap}
 
 /* ── 식습관 진행 단계 스테퍼 ── */
-.rx-stepper{position:relative;z-index:1;display:flex;align-items:flex-start;margin-bottom:10px;padding:8px 8px 0;background:#fbfbf9;border:1px solid #e6e7e2;border-radius:8px}
+.rx-stepper{position:relative;z-index:1;display:flex;align-items:flex-start;margin-bottom:12px;padding:14px 14px 4px;background:#fff;border-radius:var(--rx-r-md);box-shadow:var(--rx-shadow)}
 .rx-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;text-align:center;padding-bottom:10px}
-.rx-step:not(:last-child)::after{content:'';position:absolute;top:12px;left:calc(50% + 16px);width:calc(100% - 32px);height:2px;background:#e6e7e2}
+.rx-step:not(:last-child)::after{content:'';position:absolute;top:12px;left:calc(50% + 16px);width:calc(100% - 32px);height:2px;background:#eef0ea}
 .rx-step.done:not(:last-child)::after{background:var(--gm)}
-.rx-step-dot{width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid #dfe1dc;z-index:1;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#9a9d98}
+.rx-step-dot{width:24px;height:24px;border-radius:50%;background:#f6f7f2;border:1.5px solid #eef0ea;z-index:1;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#9a9d98}
 .rx-step.done .rx-step-dot{background:var(--gm);border-color:var(--gm);color:#fff}
-.rx-step.current .rx-step-dot{border-color:var(--gm);color:var(--gm)}
+.rx-step.current .rx-step-dot{border-color:var(--gm);color:var(--gm);background:#fff}
 .rx-step-label{font-size:8px;margin-top:5px;color:#9a9d98;font-weight:600}
 .rx-step.done .rx-step-label,.rx-step.current .rx-step-label{color:#1c221e;font-weight:700}
 
 /* ── 조리 처방 / 생활 처방 ── */
-.pr-recipe{position:relative;z-index:1;background:#fbfbf9;border:1px solid #e6e7e2;border-radius:8px;padding:9px 11px;margin-bottom:6px}
+.pr-recipe{position:relative;z-index:1;background:#fff;border-radius:var(--rx-r-md);box-shadow:var(--rx-shadow);padding:12px 15px;margin-bottom:8px}
 .pr-recipe-title{font-weight:700;font-size:11px}
 .pr-recipe-effect{color:var(--gd);font-size:9.5px;margin:3px 0 4px;font-weight:600}
 .pr-recipe-ings,.pr-recipe-steps{font-size:9.5px;line-height:1.4;margin-top:4px}
 .pr-recipe-steps ol{margin:3px 0 0;padding-left:15px}
 .pr-recipe-steps li+li{margin-top:1px}
-.pr-guide,.pr-benefit{position:relative;z-index:1;background:#fbfbf9;border:1px solid #e6e7e2;border-radius:8px;padding:8px 11px;margin-bottom:4px;font-size:9.5px;line-height:1.4}
+.pr-guide,.pr-benefit{position:relative;z-index:1;background:#fff;border-radius:var(--rx-r-md);box-shadow:var(--rx-shadow);padding:11px 15px;margin-bottom:6px;font-size:9.5px;line-height:1.4}
 
 /* ── 서명 / 도장 / 고지 ── */
-.rx-footer{position:relative;z-index:1;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;margin-top:14px;padding-top:12px;border-top:1px solid #dfe1dc}
+.rx-footer{position:relative;z-index:1;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;margin-top:20px;padding-top:16px;border-top:1px solid #e9ebe4}
 .rx-sign{display:flex;align-items:center;gap:14px}
 .rx-stamp{width:52px;height:52px;display:block;opacity:.9}
 .rx-sign-label{font-size:9.5px;color:#5b655f;line-height:1.7}
