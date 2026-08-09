@@ -2023,17 +2023,41 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
       var y = padTop + plotH * i / 4;
       return '<line x1="' + padX + '" y1="' + y.toFixed(1) + '" x2="' + (W - padX) + '" y2="' + y.toFixed(1) + '" stroke="#eceee9" stroke-width="1" stroke-dasharray="2 3"/>';
     }).join('');
-    // 선 아래 반투명 초록 영역 채우기 — 선을 따라가다 마지막/첫 점 아래(플롯 바닥)로
-    // 내려와 닫는 다각형.
-    var areaPts = poly + ' ' + pts[pts.length - 1].x.toFixed(1) + ',' + (H - padBottom).toFixed(1) +
-      ' ' + pts[0].x.toFixed(1) + ',' + (H - padBottom).toFixed(1);
-    var area = '<polygon points="' + areaPts + '" style="fill:var(--gm);fill-opacity:.14"/>';
-    var line = '<polyline points="' + poly + '" fill="none" style="stroke:var(--gm)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>';
+    // 선을 직선 폴리라인 대신 부드러운 곡선(Catmull-Rom → 3차 베지어 변환)으로 그려서
+    // 더 현대적인 차트 라이브러리 느낌을 낸다. 점 좌표 자체(라벨 정렬 기준)는 그대로
+    // 유지하고, 곡선을 지나는 SVG path만 별도로 계산한다.
+    function smoothPath(points) {
+      if (points.length < 2) return '';
+      var d = 'M' + points[0].x.toFixed(1) + ',' + points[0].y.toFixed(1);
+      for (var i = 0; i < points.length - 1; i++) {
+        var p0 = points[i === 0 ? 0 : i - 1], p1 = points[i], p2 = points[i + 1], p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+        var c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
+        var c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
+        d += ' C' + c1x.toFixed(1) + ',' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ',' + c2y.toFixed(1) + ' ' + p2.x.toFixed(1) + ',' + p2.y.toFixed(1);
+      }
+      return d;
+    }
+    var linePath = smoothPath(pts);
+    var areaPath = linePath + ' L' + pts[pts.length - 1].x.toFixed(1) + ',' + (H - padBottom).toFixed(1) +
+      ' L' + pts[0].x.toFixed(1) + ',' + (H - padBottom).toFixed(1) + ' Z';
+    // 단색 반투명 대신 위→아래로 옅어지는 그라디언트 채우기 + 라인에 은은한 그림자로
+    // 입체감을 준다 — 최신 대시보드 차트(Recharts/ApexCharts류)에서 흔한 표현.
+    var defs = '<defs>' +
+      '<linearGradient id="rxTrendGrad" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="var(--gm)" stop-opacity=".28"/>' +
+        '<stop offset="100%" stop-color="var(--gm)" stop-opacity="0"/>' +
+      '</linearGradient>' +
+      '<filter id="rxLineShadow" x="-20%" y="-40%" width="140%" height="180%">' +
+        '<feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="var(--gm)" flood-opacity=".28"/>' +
+      '</filter>' +
+    '</defs>';
+    var area = '<path d="' + areaPath + '" fill="url(#rxTrendGrad)"/>';
+    var line = '<path d="' + linePath + '" fill="none" style="stroke:var(--gm)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" filter="url(#rxLineShadow)"/>';
     var marks = pts.map(function(p, i) {
-      return '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="3" fill="#fff" style="stroke:var(--gm)" stroke-width="1.5"/>' +
+      return '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="3.5" fill="#fff" style="stroke:var(--gm)" stroke-width="2"/>' +
         '<text x="' + p.x.toFixed(1) + '" y="' + (p.y - 11).toFixed(1) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="13" font-weight="800" style="fill:var(--gm)">' + p.v + '%</text>';
     }).join('');
-    var svg = '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="상위 결핍 소견 순위별 가능성 추이">' + grid + area + line + marks + '</svg>';
+    var svg = '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="상위 결핍 소견 순위별 가능성 추이">' + defs + grid + area + line + marks + '</svg>';
     // 라벨(순위·결핍명)은 SVG 밖 HTML로 뺀다 — 이름이 길어 줄바꿈이 필요할 때
     // SVG 텍스트는 자동 줄바꿈이 안 되고 뷰박스 경계에서 잘려 보이기 쉬운데,
     // 막대 차트와 같은 방식(HTML+CSS word-wrap)을 쓰면 항상 안전하게 들어간다.
@@ -2059,9 +2083,12 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
       var isTop = i < 4;
       var rankLabel = (i + 1) + '위';
       var shortName = d.name.split(/[·(]/)[0];
+      // 막대 끝(tip)에 실제 확률값을 직접 라벨링 — 순위만 보여주던 것에서 값 자체를
+      // 바로 읽을 수 있게(데이터 시각화 기본 원칙: 막대는 끝에 값을 단다).
+      var valueLabel = isTop ? '<div class="rx-bar-value" style="bottom:' + pct + '%">' + d.probability + '%</div>' : '';
       return '<div class="rx-bar-col">' +
         '<div class="rx-bar-rank' + (isTop ? ' green' : '') + '">' + rankLabel + '</div>' +
-        '<div class="rx-bar-track"><div class="rx-bar-fill' + (isTop ? ' green' : '') + '" style="height:' + pct + '%"></div></div>' +
+        '<div class="rx-bar-track">' + valueLabel + '<div class="rx-bar-fill' + (isTop ? ' green' : '') + '" style="height:' + pct + '%"></div></div>' +
         '<div class="rx-bar-label">' + shortName + '</div>' +
         '</div>';
     }).join('');
@@ -2132,15 +2159,18 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
       { cx: 39.8, cy: 112.8, r: 16 },
       { cx: 18, cy: 91.6, r: 14 }
     ];
+    var bubbleDefs = '<defs><filter id="rxBubbleShadow" x="-40%" y="-40%" width="180%" height="180%">' +
+      '<feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1c221e" flood-opacity=".12"/>' +
+    '</filter></defs>';
     var bubbles = sorted.map(function(b, i) {
       var s = slots[i];
       var fontSize = Math.max(6, Math.round(s.r * 0.27));
       var fillVar = i < 2 ? 'var(--gm)' : (i < 4 ? 'var(--gm-tint2)' : 'var(--gm-tint)');
       var textColor = i < 2 ? '#fff' : (i < 4 ? '#1c221e' : '#5b655f');
-      return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" style="fill:' + fillVar + '"/>' +
+      return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" style="fill:' + fillVar + '" filter="url(#rxBubbleShadow)"/>' +
         '<text x="' + s.cx + '" y="' + (s.cy + fontSize * 0.35) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="' + fontSize + '" font-weight="600" fill="' + textColor + '">' + b.name + '</text>';
     }).join('');
-    var svg = '<svg width="100%" viewBox="0 0 188 148" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + bubbles + '</svg>';
+    var svg = '<svg width="100%" viewBox="0 0 188 148" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + bubbleDefs + bubbles + '</svg>';
     var i1 = data.deficiencies[0], i2 = top3rec[0];
     var insights = '';
     if (i1) insights += '<div class="rx-speech"><span class="rx-hl">' + i1.name.split(/[·(]/)[0] + '</span> ' + i1.reason + '</div>';
@@ -2583,9 +2613,10 @@ window.addEventListener('scroll', () => {
 .rx-bar-rank.green{color:var(--gm)}
 /* 막대 트랙은 flex:1 대신 고정 높이를 준다 — 아래 라벨이 1줄/2줄로 다르게
    줄바꿈돼도 막대 바닥선이 항상 같은 위치에 정확히 맞도록. */
-.rx-bar-track{width:100%;max-width:22px;height:70px;display:flex;align-items:flex-end}
+.rx-bar-track{position:relative;width:100%;max-width:22px;height:70px;display:flex;align-items:flex-end}
 .rx-bar-fill{width:100%;border-radius:4px 4px 0 0;background:#dfe1dc}
-.rx-bar-fill.green{background:var(--gm)}
+.rx-bar-fill.green{background:linear-gradient(180deg,#3fb579,var(--gm) 65%)}
+.rx-bar-value{position:absolute;left:50%;transform:translate(-50%,-5px);font-size:7px;font-weight:800;color:var(--gm);white-space:nowrap;font-variant-numeric:tabular-nums}
 .rx-bar-label{font-size:6.8px;color:#9a9d98;font-weight:700;margin-top:4px;text-align:center;line-height:1.2;max-width:38px;overflow-wrap:break-word}
 
 /* 쿼드런트3: 순위 리스트(채소 비중 / 진단 소견 상세 공용) */
@@ -2629,8 +2660,8 @@ window.addEventListener('scroll', () => {
 .rx-detail-head{display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;margin-bottom:3px}
 .rx-detail-head b{color:#1c221e}
 .rx-prob-value{color:var(--gm);font-weight:800;font-variant-numeric:tabular-nums}
-.rx-prob-track{width:100%;height:5px;background:#e6e7e2;border-radius:3px;overflow:hidden;margin-bottom:4px}
-.rx-prob-fill{height:100%;background:var(--gm);border-radius:3px}
+.rx-prob-track{width:100%;height:6px;background:#eef0ea;border-radius:3px;overflow:hidden;margin-bottom:4px}
+.rx-prob-fill{height:100%;background:linear-gradient(90deg,#3fb579,var(--gm));border-radius:3px}
 .rx-detail-reason{font-size:8.5px;line-height:1.5;color:#5b655f}
 
 /* ── 브랜드 캐릭터: 장식용(aria-hidden)으로만 사용 ── */
