@@ -2186,38 +2186,29 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
       { cx: 35.5, cy: 118.5, r: 15 },
       { cx: 15, cy: 100.5, r: 11 }
     ];
-    // 어두운 배경 위에 초록 오브가 은은하게 빛나는 레퍼런스 느낌 — 중심은 진하고
-    // 가장자리로 갈수록 밝아지는 방사형 그라디언트 + 원 바깥으로 살짝 번지는
-    // 블러 글로우(halo)를 겹쳐서 "빛나는 구슬" 느낌을 낸다.
+    // 중심은 흰색, 가장자리로 갈수록 초록이 진해지는 방사형 그라디언트 — 중간에
+    // 평평한 구간 없이 처음부터 끝까지 매끄럽게 이어지도록 2단계 스톱만 쓴다.
+    // 글로우 없음, 글씨는 항상 검정.
     var bubbleDefs = '<defs>' +
-      '<filter id="rxBubbleGlow" x="-70%" y="-70%" width="240%" height="240%">' +
-        '<feGaussianBlur stdDeviation="4.5"/>' +
-      '</filter>' +
-      '<radialGradient id="rxBubbleGradDark" cx="50%" cy="50%" r="55%">' +
-        '<stop offset="0%" stop-color="var(--gd)"/>' +
-        '<stop offset="70%" stop-color="var(--gm)"/>' +
-        '<stop offset="100%" stop-color="#7fe8ae"/>' +
+      '<radialGradient id="rxBubbleGradDark" cx="50%" cy="50%" r="65%">' +
+        '<stop offset="0%" stop-color="#fff"/>' +
+        '<stop offset="100%" stop-color="var(--gm)"/>' +
       '</radialGradient>' +
-      '<radialGradient id="rxBubbleGradMid" cx="50%" cy="50%" r="55%">' +
-        '<stop offset="0%" stop-color="#3fae78"/>' +
-        '<stop offset="70%" stop-color="#4fbf85"/>' +
-        '<stop offset="100%" stop-color="#a8e6c4"/>' +
+      '<radialGradient id="rxBubbleGradMid" cx="50%" cy="50%" r="65%">' +
+        '<stop offset="0%" stop-color="#fff"/>' +
+        '<stop offset="100%" stop-color="#4fbf85"/>' +
       '</radialGradient>' +
-      '<radialGradient id="rxBubbleGradLight" cx="50%" cy="50%" r="55%">' +
-        '<stop offset="0%" stop-color="#bfe9d4"/>' +
-        '<stop offset="70%" stop-color="#d3efe0"/>' +
-        '<stop offset="100%" stop-color="#f4fcf8"/>' +
+      '<radialGradient id="rxBubbleGradLight" cx="50%" cy="50%" r="65%">' +
+        '<stop offset="0%" stop-color="#fff"/>' +
+        '<stop offset="100%" stop-color="#a8ddc0"/>' +
       '</radialGradient>' +
     '</defs>';
     var bubbles = sorted.map(function(b, i) {
       var s = slots[i];
       var fontSize = Math.max(6, Math.round(s.r * 0.27));
       var fillVar = i < 2 ? 'url(#rxBubbleGradDark)' : (i < 4 ? 'url(#rxBubbleGradMid)' : 'url(#rxBubbleGradLight)');
-      var glowColor = i < 2 ? '#5fe0a0' : (i < 4 ? '#8ee0bc' : '#d3efe0');
-      var textColor = i < 2 ? '#fff' : (i < 4 ? '#1c221e' : '#5b655f');
-      return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + (s.r * 1.06) + '" style="fill:' + glowColor + '" opacity=".55" filter="url(#rxBubbleGlow)"/>' +
-        '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" style="fill:' + fillVar + '"/>' +
-        '<text x="' + s.cx + '" y="' + (s.cy + fontSize * 0.35) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="' + fontSize + '" font-weight="600" fill="' + textColor + '">' + b.name + '</text>';
+      return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" style="fill:' + fillVar + '"/>' +
+        '<text x="' + s.cx + '" y="' + (s.cy + fontSize * 0.35) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="' + fontSize + '" font-weight="600" fill="#1c221e">' + b.name + '</text>';
     }).join('');
     var svg = '<svg width="100%" viewBox="0 0 188 151" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + bubbleDefs + bubbles + '</svg>';
     var i1 = data.deficiencies[0], i2 = top3rec[0];
