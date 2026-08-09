@@ -2563,7 +2563,11 @@ window.addEventListener('scroll', () => {
    박스가 인쇄 중 알아서 여러 장으로 쪼개지게 두지 않아야 항상 같은 크기·여백을
    보장한다). --gm/--gd는 기존 루트/인쇄 오버라이드를 그대로 재사용해서 톤은
    CMYK 인쇄에서도 안전하게 유지된다. */
-.pr-page{position:relative;box-sizing:border-box;width:210mm;max-width:calc(100% - 32px);min-height:297mm;margin:28px auto 48px;background:#f1f1ee;padding:13mm 12mm;box-shadow:0 6px 28px rgba(0,0,0,.28);font-size:11px;line-height:1.5;color:#1c221e;--gm-tint:#eafaf1;--gm-tint2:#bdeed2}
+/* 한글은 음절(글자) 단위로 줄바꿈이 가능해서 overflow-wrap:break-word만 있으면
+   "결핍" 같은 한 단어 중간(결/핍)에서 줄이 끊길 수 있다. word-break:keep-all을
+   문서 전체에 걸어서 띄어쓰기(단어 경계)에서만 줄바꿈되게 한다 — 정말 폭이
+   부족해 넘칠 때만 overflow-wrap이 안전망으로 개입한다. */
+.pr-page{position:relative;box-sizing:border-box;width:210mm;max-width:calc(100% - 32px);min-height:297mm;margin:28px auto 48px;background:#f1f1ee;padding:13mm 12mm;box-shadow:0 6px 28px rgba(0,0,0,.28);font-size:11px;line-height:1.5;color:#1c221e;word-break:keep-all;overflow-wrap:break-word;--gm-tint:#eafaf1;--gm-tint2:#bdeed2}
 .pr-page-fit{transform-origin:top center}
 .pr-page-2-head{position:relative;z-index:1;display:flex;align-items:center;gap:8px;font-size:10px;font-weight:700;letter-spacing:.5px;color:#9a9d98;margin-bottom:10px}
 .rx-watermark{position:absolute;top:250mm;left:50%;transform:translate(-50%,-50%) rotate(-24deg);font-size:60px;font-weight:800;color:#1c221e;opacity:.02;white-space:nowrap;letter-spacing:5px;pointer-events:none;z-index:0}
@@ -2598,7 +2602,7 @@ window.addEventListener('scroll', () => {
 .rx-trend-labels{position:relative;margin-top:2px;height:34px}
 .rx-trend-label-col{position:absolute;top:0;width:56px;transform:translateX(-50%);text-align:center;padding:0 2px;box-sizing:border-box}
 .rx-trend-rank{font-size:7px;font-weight:700;color:#9a9d98}
-.rx-trend-name{font-size:8.5px;font-weight:700;color:#1c221e;margin-top:2px;line-height:1.25;overflow-wrap:break-word}
+.rx-trend-name{font-size:8.5px;font-weight:700;color:#1c221e;margin-top:2px;line-height:1.25;word-break:keep-all;overflow-wrap:break-word}
 
 /* 라인·막대 차트 공용 인사이트 리스트 (화살표 불릿 + 노란 하이라이트) */
 .rx-insight-list{margin-top:6px}
