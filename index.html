@@ -2146,32 +2146,31 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
     var sorted = Object.keys(freq).map(function(k){ return { name: k, count: freq[k] }; })
       .sort(function(a, b){ return b.count - a.count; }).slice(0, 6);
     if (!sorted.length) return '';
+    // 원 6개의 반지름 차이를 더 뚜렷하게(52→36→27→20→15→11, 이전보다 단계 폭을
+    // 키움) 잡고, 겹치지 않게 서로 맞닿는 위치를 다시 계산했다.
     var slots = [
-      { cx: 69.8, cy: 54, r: 50 },
-      { cx: 151.8, cy: 54, r: 32 },
-      { cx: 126.3, cy: 110.6, r: 30 },
-      { cx: 77.1, cy: 123.6, r: 20 },
-      { cx: 39.8, cy: 112.8, r: 16 },
-      { cx: 18, cy: 91.6, r: 14 }
+      { cx: 59.5, cy: 56, r: 52 },
+      { cx: 147.5, cy: 56, r: 36 },
+      { cx: 115.4, cy: 111.9, r: 27 },
+      { cx: 70.8, cy: 127.1, r: 20 },
+      { cx: 35.5, cy: 118.5, r: 15 },
+      { cx: 15, cy: 100.5, r: 11 }
     ];
-    // 단색 채우기 대신, 좌상단에서 빛이 비치는 듯한 방사형 그라디언트를 원마다
-    // 깔아서 유리구슬 같은 입체감을 준다. 진한 원(1·2위)은 밝은 초록→기본 그린,
-    // 옅은 원(5·6위)은 흰빛→연한 그린 틴트로 톤만 다르게.
+    // 좌상단에서 빛이 비치는 방사형 그라디언트로 입체감을 주되(그림자는 제거),
+    // 3단계 색을 이전보다 훨씬 넓게 벌려서 서로 뚜렷이 구분되게 했다 — 진한
+    // 브랜드 그린 → 중간 톤 그린 → 연한 민트, 세 톤이 한눈에 구별된다.
     var bubbleDefs = '<defs>' +
-      '<filter id="rxBubbleShadow" x="-40%" y="-40%" width="180%" height="180%">' +
-        '<feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1c221e" flood-opacity=".12"/>' +
-      '</filter>' +
       '<radialGradient id="rxBubbleGradDark" cx="32%" cy="28%" r="75%">' +
-        '<stop offset="0%" stop-color="#5fc98d"/>' +
-        '<stop offset="100%" stop-color="var(--gm)"/>' +
+        '<stop offset="0%" stop-color="#5fe0a0"/>' +
+        '<stop offset="100%" stop-color="var(--gd)"/>' +
       '</radialGradient>' +
       '<radialGradient id="rxBubbleGradMid" cx="32%" cy="28%" r="75%">' +
-        '<stop offset="0%" stop-color="#fff"/>' +
-        '<stop offset="100%" stop-color="var(--gm-tint2)"/>' +
+        '<stop offset="0%" stop-color="#ade8c4"/>' +
+        '<stop offset="100%" stop-color="#4fbf85"/>' +
       '</radialGradient>' +
       '<radialGradient id="rxBubbleGradLight" cx="32%" cy="28%" r="75%">' +
         '<stop offset="0%" stop-color="#fff"/>' +
-        '<stop offset="100%" stop-color="var(--gm-tint)"/>' +
+        '<stop offset="100%" stop-color="#d3efe0"/>' +
       '</radialGradient>' +
     '</defs>';
     var bubbles = sorted.map(function(b, i) {
@@ -2179,10 +2178,10 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
       var fontSize = Math.max(6, Math.round(s.r * 0.27));
       var fillVar = i < 2 ? 'url(#rxBubbleGradDark)' : (i < 4 ? 'url(#rxBubbleGradMid)' : 'url(#rxBubbleGradLight)');
       var textColor = i < 2 ? '#fff' : (i < 4 ? '#1c221e' : '#5b655f');
-      return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" style="fill:' + fillVar + '" filter="url(#rxBubbleShadow)"/>' +
+      return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" style="fill:' + fillVar + '"/>' +
         '<text x="' + s.cx + '" y="' + (s.cy + fontSize * 0.35) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="' + fontSize + '" font-weight="600" fill="' + textColor + '">' + b.name + '</text>';
     }).join('');
-    var svg = '<svg width="100%" viewBox="0 0 188 148" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + bubbleDefs + bubbles + '</svg>';
+    var svg = '<svg width="100%" viewBox="0 0 188 151" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + bubbleDefs + bubbles + '</svg>';
     var i1 = data.deficiencies[0], i2 = top3rec[0];
     var insights = '';
     if (i1) insights += '<div class="rx-speech"><span class="rx-hl">' + i1.name.split(/[·(]/)[0] + '</span> ' + i1.reason + '</div>';
