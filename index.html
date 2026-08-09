@@ -2186,18 +2186,21 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
       { cx: 35.5, cy: 118.5, r: 15 },
       { cx: 15, cy: 100.5, r: 11 }
     ];
-    // 나머지 문서 전체가 플랫(단색 + 옅은 그림자) 톤이라, 버블만 유리구슬 같은
-    // 하이라이트 그라디언트를 쓰면 튀어 보인다. 3단계 색 대비는 그대로 유지하되
-    // 단색 채우기로 되돌린다.
+    // 브랜딩 무드보드류에서 자주 보이는, 가장자리가 뿌옇게 번지는 소프트 오브
+    // 느낌으로 — 원(circle)만 가우시안 블러를 걸어 테두리를 흐릿하게 퍼뜨리고,
+    // 글자는 블러 없이 선명하게 그 위에 얹는다.
+    var bubbleDefs = '<defs><filter id="rxBubbleBlur" x="-60%" y="-60%" width="220%" height="220%">' +
+      '<feGaussianBlur stdDeviation="5"/>' +
+    '</filter></defs>';
     var bubbles = sorted.map(function(b, i) {
       var s = slots[i];
       var fontSize = Math.max(6, Math.round(s.r * 0.27));
       var fillVar = i < 2 ? 'var(--gd)' : (i < 4 ? '#4fbf85' : '#d3efe0');
       var textColor = i < 2 ? '#fff' : (i < 4 ? '#1c221e' : '#5b655f');
-      return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" style="fill:' + fillVar + '"/>' +
+      return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" style="fill:' + fillVar + '" filter="url(#rxBubbleBlur)"/>' +
         '<text x="' + s.cx + '" y="' + (s.cy + fontSize * 0.35) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="' + fontSize + '" font-weight="600" fill="' + textColor + '">' + b.name + '</text>';
     }).join('');
-    var svg = '<svg width="100%" viewBox="0 0 188 151" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + bubbles + '</svg>';
+    var svg = '<svg width="100%" viewBox="0 0 188 151" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + bubbleDefs + bubbles + '</svg>';
     var i1 = data.deficiencies[0], i2 = top3rec[0];
     var insights = '';
     if (i1) insights += '<div class="rx-speech"><span class="rx-hl">' + i1.name.split(/[·(]/)[0] + '</span> ' + i1.reason + '</div>';
