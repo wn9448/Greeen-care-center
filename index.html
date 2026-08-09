@@ -2589,7 +2589,7 @@ window.addEventListener('scroll', () => {
 .rx-dash-card{position:relative;z-index:1;background:#fbfbf9;border:1px solid #dfe1dc;border-radius:10px;box-shadow:0 8px 24px -14px rgba(20,25,20,.16);padding:18px 0;margin-bottom:14px}
 .rx-quad-grid{display:grid;grid-template-columns:1fr 1fr;position:relative}
 .rx-quad-grid::before{content:'';position:absolute;left:50%;top:4px;bottom:4px;width:1px;background:#e6e7e2}
-.rx-quad{padding:0 18px}
+.rx-quad{padding:0 18px;display:flex;flex-direction:column}
 .rx-quad-title{font-size:10.5px;font-weight:700;color:#1c221e;margin-bottom:8px}
 .rx-quad-title small{font-size:7.5px;font-weight:600;color:#9a9d98;margin-left:3px}
 
@@ -2606,7 +2606,10 @@ window.addEventListener('scroll', () => {
 .rx-hl{display:inline;background:var(--dyellow,#fff066);padding:0 3px;border-radius:2px;font-weight:700;color:#1c221e;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 
 /* 쿼드런트2: 막대 차트 */
-.rx-barchart{display:flex;align-items:flex-start;gap:5px;margin-top:12px}
+/* 막대+인사이트 묶음을 카드 하단에 붙인다 — 왼쪽(선 그래프) 칼럼은 이미 바닥까지
+   차 있는데 오른쪽(막대 차트) 칼럼만 인사이트 글 길이가 짧아 아래 여백이 남는
+   문제를 해결. margin-top:auto가 남는 공간을 전부 title과 막대 사이로 밀어준다. */
+.rx-barchart{display:flex;align-items:flex-start;gap:5px;margin-top:auto;padding-top:12px}
 .rx-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;min-width:0}
 .rx-bar-rank{position:absolute;left:50%;transform:translate(-50%,-5px);font-size:7px;font-weight:700;color:#9a9d98;white-space:nowrap;line-height:1}
 .rx-bar-rank.green{color:var(--gm)}
