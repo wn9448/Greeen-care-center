@@ -2083,12 +2083,9 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
       var isTop = i < 4;
       var rankLabel = (i + 1) + '위';
       var shortName = d.name.split(/[·(]/)[0];
-      // 막대 끝(tip)에 실제 확률값을 직접 라벨링 — 순위만 보여주던 것에서 값 자체를
-      // 바로 읽을 수 있게(데이터 시각화 기본 원칙: 막대는 끝에 값을 단다).
-      var valueLabel = isTop ? '<div class="rx-bar-value" style="bottom:' + pct + '%">' + d.probability + '%</div>' : '';
       return '<div class="rx-bar-col">' +
         '<div class="rx-bar-rank' + (isTop ? ' green' : '') + '">' + rankLabel + '</div>' +
-        '<div class="rx-bar-track">' + valueLabel + '<div class="rx-bar-fill' + (isTop ? ' green' : '') + '" style="height:' + pct + '%"></div></div>' +
+        '<div class="rx-bar-track"><div class="rx-bar-fill' + (isTop ? ' green' : '') + '" style="height:' + pct + '%"></div></div>' +
         '<div class="rx-bar-label">' + shortName + '</div>' +
         '</div>';
     }).join('');
@@ -2620,7 +2617,6 @@ window.addEventListener('scroll', () => {
 .rx-bar-track{position:relative;width:100%;max-width:22px;height:70px;display:flex;align-items:flex-end}
 .rx-bar-fill{width:100%;border-radius:4px 4px 0 0;background:#dfe1dc}
 .rx-bar-fill.green{background:linear-gradient(180deg,#3fb579,var(--gm) 65%)}
-.rx-bar-value{position:absolute;left:50%;transform:translate(-50%,-5px);font-size:7px;font-weight:800;color:var(--gm);white-space:nowrap;font-variant-numeric:tabular-nums}
 .rx-bar-label{font-size:6.8px;color:#9a9d98;font-weight:700;margin-top:4px;text-align:center;line-height:1.2;max-width:38px;overflow-wrap:break-word}
 
 /* 쿼드런트3: 순위 리스트(채소 비중 / 진단 소견 상세 공용) */
