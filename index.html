@@ -2050,9 +2050,14 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
     '</defs>';
     var area = '<path d="' + areaPath + '" fill="url(#rxTrendGrad)"/>';
     var line = '<path d="' + linePath + '" fill="none" style="stroke:var(--gm)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" filter="url(#rxLineShadow)"/>';
+    // text-anchor:middle은 "53%" 문자열 전체(숫자+% 기호)의 가운데를 점에 맞추기
+    // 때문에, % 기호 폭만큼 숫자 부분이 왼쪽으로 밀려 보인다. 숫자 자체의 가운데가
+    // 점과 맞도록 % 기호 폭의 절반(Pretendard 13px/800 기준 실측 ≈5.5px)만큼
+    // 앵커를 오른쪽으로 밀어준다.
+    var percentHalfWidth = 5.5;
     var marks = pts.map(function(p, i) {
       return '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="3.5" fill="#fff" style="stroke:var(--gm)" stroke-width="2"/>' +
-        '<text x="' + p.x.toFixed(1) + '" y="' + (p.y - 11).toFixed(1) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="13" font-weight="800" style="fill:var(--gm)">' + p.v + '%</text>';
+        '<text x="' + (p.x + percentHalfWidth).toFixed(1) + '" y="' + (p.y - 11).toFixed(1) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="13" font-weight="800" style="fill:var(--gm)">' + p.v + '%</text>';
     }).join('');
     var svg = '<svg width="100%" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="상위 결핍 소견 순위별 가능성 추이">' + defs + grid + area + line + marks + '</svg>';
     // 라벨(순위·결핍명)은 SVG 밖 HTML로 뺀다 — 이름이 길어 줄바꿈이 필요할 때
