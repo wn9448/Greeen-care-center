@@ -2188,9 +2188,33 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
     ];
     // 그라디언트 없이 원마다 다른 초록 톤의 단색으로만 구분. 글씨는 흰색.
     var bubbleColors = ['#2f9e63', '#3fae74', '#5abf88', '#7bcf9e', '#a3ddb8', '#c8ecd3'];
+    // 원 크기에 비례한 상한(capSize)만 쓰면 작은 원에서 글자 수가 많은 라벨이
+    // 원 밖으로 삐져나가므로, 실제 폰트로 라벨 폭을 재서 원 지름 안에 들어오는
+    // 크기로도 한 번 더 제한한다 — 작은 원일수록 실질적으로 더 작은 글씨가 된다.
+    function measureBubbleTextWidth(str, fontSize) {
+      var svgNS = 'http://www.w3.org/2000/svg';
+      var tmp = document.createElementNS(svgNS, 'svg');
+      tmp.style.position = 'absolute';
+      tmp.style.visibility = 'hidden';
+      var t = document.createElementNS(svgNS, 'text');
+      t.setAttribute('font-family', 'Pretendard,sans-serif');
+      t.setAttribute('font-size', fontSize);
+      t.setAttribute('font-weight', '600');
+      t.textContent = str;
+      tmp.appendChild(t);
+      document.body.appendChild(tmp);
+      var w = t.getBBox().width;
+      document.body.removeChild(tmp);
+      return w;
+    }
     var bubbles = sorted.map(function(b, i) {
       var s = slots[i];
-      var fontSize = Math.max(6, Math.round(s.r * 0.27));
+      var refSize = 20;
+      var measuredWidth = measureBubbleTextWidth(b.name, refSize);
+      var maxTextWidth = s.r * 1.6;
+      var fitSize = refSize * maxTextWidth / measuredWidth;
+      var capSize = s.r * 0.27;
+      var fontSize = Math.max(4, Math.round(Math.min(capSize, fitSize)));
       return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" fill="' + bubbleColors[i] + '"/>' +
         '<text x="' + s.cx + '" y="' + (s.cy + fontSize * 0.35) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="' + fontSize + '" font-weight="600" fill="#fff">' + b.name + '</text>';
     }).join('');
