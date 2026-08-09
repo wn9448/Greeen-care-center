@@ -2186,32 +2186,18 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
       { cx: 35.5, cy: 118.5, r: 15 },
       { cx: 15, cy: 100.5, r: 11 }
     ];
-    // 좌상단에서 빛이 비치는 방사형 그라디언트로 입체감을 주되(그림자는 제거),
-    // 3단계 색을 이전보다 훨씬 넓게 벌려서 서로 뚜렷이 구분되게 했다 — 진한
-    // 브랜드 그린 → 중간 톤 그린 → 연한 민트, 세 톤이 한눈에 구별된다.
-    var bubbleDefs = '<defs>' +
-      '<radialGradient id="rxBubbleGradDark" cx="32%" cy="28%" r="75%">' +
-        '<stop offset="0%" stop-color="#5fe0a0"/>' +
-        '<stop offset="100%" stop-color="var(--gd)"/>' +
-      '</radialGradient>' +
-      '<radialGradient id="rxBubbleGradMid" cx="32%" cy="28%" r="75%">' +
-        '<stop offset="0%" stop-color="#ade8c4"/>' +
-        '<stop offset="100%" stop-color="#4fbf85"/>' +
-      '</radialGradient>' +
-      '<radialGradient id="rxBubbleGradLight" cx="32%" cy="28%" r="75%">' +
-        '<stop offset="0%" stop-color="#fff"/>' +
-        '<stop offset="100%" stop-color="#d3efe0"/>' +
-      '</radialGradient>' +
-    '</defs>';
+    // 나머지 문서 전체가 플랫(단색 + 옅은 그림자) 톤이라, 버블만 유리구슬 같은
+    // 하이라이트 그라디언트를 쓰면 튀어 보인다. 3단계 색 대비는 그대로 유지하되
+    // 단색 채우기로 되돌린다.
     var bubbles = sorted.map(function(b, i) {
       var s = slots[i];
       var fontSize = Math.max(6, Math.round(s.r * 0.27));
-      var fillVar = i < 2 ? 'url(#rxBubbleGradDark)' : (i < 4 ? 'url(#rxBubbleGradMid)' : 'url(#rxBubbleGradLight)');
+      var fillVar = i < 2 ? 'var(--gd)' : (i < 4 ? '#4fbf85' : '#d3efe0');
       var textColor = i < 2 ? '#fff' : (i < 4 ? '#1c221e' : '#5b655f');
       return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" style="fill:' + fillVar + '"/>' +
         '<text x="' + s.cx + '" y="' + (s.cy + fontSize * 0.35) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="' + fontSize + '" font-weight="600" fill="' + textColor + '">' + b.name + '</text>';
     }).join('');
-    var svg = '<svg width="100%" viewBox="0 0 188 151" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + bubbleDefs + bubbles + '</svg>';
+    var svg = '<svg width="100%" viewBox="0 0 188 151" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + bubbles + '</svg>';
     var i1 = data.deficiencies[0], i2 = top3rec[0];
     var insights = '';
     if (i1) insights += '<div class="rx-speech"><span class="rx-hl">' + i1.name.split(/[·(]/)[0] + '</span> ' + i1.reason + '</div>';
