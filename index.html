@@ -2146,31 +2146,19 @@ function buildPrescriptionInner(data, guide, benefits, profile) {
     var sorted = Object.keys(freq).map(function(k){ return { name: k, count: freq[k] }; })
       .sort(function(a, b){ return b.count - a.count; }).slice(0, 6);
     if (!sorted.length) return '';
-    var slots = [
-      { cx: 69.8, cy: 54, r: 50 },
-      { cx: 151.8, cy: 54, r: 32 },
-      { cx: 126.3, cy: 110.6, r: 30 },
-      { cx: 77.1, cy: 123.6, r: 20 },
-      { cx: 39.8, cy: 112.8, r: 16 },
-      { cx: 18, cy: 91.6, r: 14 }
-    ];
-    var bubbleDefs = '<defs><filter id="rxBubbleShadow" x="-40%" y="-40%" width="180%" height="180%">' +
-      '<feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#1c221e" flood-opacity=".12"/>' +
-    '</filter></defs>';
-    var bubbles = sorted.map(function(b, i) {
-      var s = slots[i];
-      var fontSize = Math.max(6, Math.round(s.r * 0.27));
-      var fillVar = i < 2 ? 'var(--gm)' : (i < 4 ? 'var(--gm-tint2)' : 'var(--gm-tint)');
-      var textColor = i < 2 ? '#fff' : (i < 4 ? '#1c221e' : '#5b655f');
-      return '<circle cx="' + s.cx + '" cy="' + s.cy + '" r="' + s.r + '" style="fill:' + fillVar + '" filter="url(#rxBubbleShadow)"/>' +
-        '<text x="' + s.cx + '" y="' + (s.cy + fontSize * 0.35) + '" text-anchor="middle" font-family="Pretendard,sans-serif" font-size="' + fontSize + '" font-weight="600" fill="' + textColor + '">' + b.name + '</text>';
+    // 원형 버블 패킹 대신 크기·색 진하기로 빈도를 표현하는 필(pill) 클라우드로 —
+    // 요즘 대시보드 UI(트렌딩 키워드/태그칩)에서 흔히 쓰는, 더 가볍고 현대적인 형태.
+    // 겹침 계산이 필요 없어 레이아웃도 항상 안정적이다.
+    var pills = sorted.map(function(b, i) {
+      var tier = Math.min(i + 1, 6);
+      return '<span class="rx-kw-pill rx-kw-t' + tier + '">' + b.name + '<span class="rx-kw-count">' + b.count + '</span></span>';
     }).join('');
-    var svg = '<svg width="100%" viewBox="0 0 188 148" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + bubbleDefs + bubbles + '</svg>';
+    var cloud = '<div class="rx-kw-cloud" role="img" aria-label="추천 채소 영양소 키워드 빈도">' + pills + '</div>';
     var i1 = data.deficiencies[0], i2 = top3rec[0];
     var insights = '';
     if (i1) insights += '<div class="rx-speech"><span class="rx-hl">' + i1.name.split(/[·(]/)[0] + '</span> ' + i1.reason + '</div>';
     if (i2) insights += '<div class="rx-speech">추천 레시피 <span class="rx-hl">' + i2.title + '</span> — ' + i2.effect + '</div>';
-    return '<div class="rx-quad-2col"><div>' + svg + '</div><div><div class="rx-speech-label">▶ insights</div>' + insights + '</div></div>';
+    return '<div class="rx-quad-2col"><div>' + cloud + '</div><div><div class="rx-speech-label">▶ insights</div>' + insights + '</div></div>';
   }
 
   // 진단 소견 상세 목록(전체) — 대시보드 차트 아래 근거 자료로 유지.
@@ -2632,6 +2620,19 @@ window.addEventListener('scroll', () => {
 
 /* 쿼드런트4: 버블 차트 + 스피치 카드 인사이트 */
 .rx-quad-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center}
+
+/* ── 채소 영양소 키워드: 원형 버블 패킹 대신 크기·색 진하기로 빈도를 표현하는
+   필(pill) 클라우드 — 요즘 대시보드의 트렌딩 키워드/태그칩 UI 참고. 순위가 높을수록
+   크고 진한 그린, 낮을수록 작고 옅은 톤. 숫자는 실제 등장 채소 개수(빈도). ── */
+.rx-kw-cloud{display:flex;flex-wrap:wrap;align-content:flex-start;align-items:center;gap:10px}
+.rx-kw-pill{display:inline-flex;align-items:baseline;gap:5px;border-radius:999px;font-weight:800;white-space:nowrap;line-height:1;font-family:Pretendard,sans-serif}
+.rx-kw-pill .rx-kw-count{font-weight:700;opacity:.55;font-size:.68em}
+.rx-kw-t1{background:var(--gm);color:#fff;font-size:19px;padding:11px 20px;box-shadow:0 8px 18px -8px rgba(20,105,60,.45)}
+.rx-kw-t2{background:var(--gm);color:#fff;font-size:15px;padding:9px 16px;opacity:.86}
+.rx-kw-t3{background:var(--gm-tint2);color:#0f5c30;font-size:13px;padding:8px 15px}
+.rx-kw-t4{background:var(--gm-tint2);color:#0f5c30;font-size:11.5px;padding:7px 13px;opacity:.8}
+.rx-kw-t5{background:var(--gm-tint);color:#3d6b52;font-size:10.5px;padding:6px 12px}
+.rx-kw-t6{background:var(--gm-tint);color:#3d6b52;font-size:10px;padding:6px 11px;opacity:.85}
 .rx-speech-label{font-size:7.5px;font-weight:700;color:var(--gm);margin-bottom:5px}
 .rx-speech{position:relative;background:#fff;border:1px solid #e6e7e2;border-radius:8px;padding:7px 9px;font-size:7.8px;line-height:1.55;color:#3d453f;margin-bottom:6px}
 .rx-speech:last-child{margin-bottom:0}
