@@ -2379,12 +2379,18 @@ function fitPrescriptionPages() {
     var fit = page.querySelector('.pr-page-fit');
     if (!fit) return;
     fit.style.transform = 'none';
+    fit.style.height = 'auto';
     var cs = getComputedStyle(page);
     var availablePx = targetPageHeightPx - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
     var naturalPx = fit.getBoundingClientRect().height;
     if (naturalPx > availablePx) {
       var scale = availablePx / naturalPx;
       fit.style.transform = 'scale(' + scale.toFixed(4) + ')';
+      // transform은 시각적으로만 축소할 뿐 레이아웃 상 차지하는 높이는 그대로라서,
+      // .pr-page(min-height:297mm)가 축소 전 원본 높이만큼 계속 부풀어 있다가
+      // 실제 인쇄에서 A4 한 장을 넘겨 빈 페이지가 하나 더 생긴다. 축소된 실제
+      // 시각적 높이를 height로 못박아 부모 박스도 그만큼만 차지하게 만든다.
+      fit.style.height = Math.ceil(naturalPx * scale) + 'px';
     }
   });
 }
